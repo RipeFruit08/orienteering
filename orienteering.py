@@ -141,21 +141,8 @@ def A_star(init):
 def main():
 	global pix
 	global elevations
-	print('hello')
 	img = Image.open('elevations_pixels.PNG')
 	pix = img.load()
-	print(pix)
-	print(pix[0,0])
-	print(pix[228,308])
-	print(pix[230,327])
-	#pix[168,236] = (255,0,0,255)
-	#pix[178,222] = (255,0,0,255)
-	#pix[0,0] = (0,0,0,255)
-	#img.show()
-	x = img.size[0]
-	y = img.size[1]
-	print(x)
-	print(y)
 	with open('elevations.txt') as f:
 		elevations = [ line.split() for line in f ]
 	print("done")
@@ -166,17 +153,10 @@ def main():
 		with open(sys.argv[1]) as f:
 			points = [tuple([int(i) for i in line.split()]) for line in f]
 		#print(points)
+	# no file parameter passed, defaults to using points for brown path
 	else:
 		points = [(230, 327),(276, 279),(303, 240),(306, 286),(290, 310),(304, 331),(306, 341),(253, 372),(246, 355),(288, 338),(282, 321),(243, 327),(230, 327)]
 	paths = []
-	"""
-	#init = State.State(elevations[168][236], Terrain.GetTerrainVal(pix[168,236]), 168, 236, 178, 222)
-	init = State.State(elevations[230][327], Terrain.GetTerrainVal(pix[230,327]), 230, 327, 276, 279)
-	start = time.time()
-	paths.append(A_star(init))
-	end = time.time()
-	print(end-start)
-	"""
 	stime = time.time()
 	for i in range(len(points)-1):
 		start = points[i]

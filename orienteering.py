@@ -263,6 +263,104 @@ def get_direction(val):
 	}
 	
 	return switcher.get(val)
+"""
+Update pixel mapping based on a particular season
+:param: mode int representing which seasons
+0 -> summer, no change necessary
+1 -> fall, easy movement forests & adjacent cells become slightly harder
+2 -> winter, all water that is within 7 pixels of non-water is now ice (slightly easier than rough meadow)
+3 -> spring, any pixel within 15 pixels of water without gaining more than 1m in elevation is underwater
+:return: nothing, this function modifies the global pixel array
+"""
+def change_season(mode):
+	if (mode == 1):
+		do_fall()
+	elif (mode == 2):
+		do_winter()
+	elif (mode == 3):
+		do_spring()
+	else:
+		return
+
+"""
+returns a list of tuples corresponding to the neighbors the tuple coord
+:param: coord a tuple representing an x,y coordinate
+:return: a list containing tuples representing all valid neighbors of coord
+"""
+def pixel_neighbors(coord):
+	x, y = coord
+	neighbors = []
+	# neighbors to the right
+	c = make_neighbor(x+1, y-1)
+	if c != None: neighbors.append(c) 
+	c = make_neighbor(x+1, y)
+	if c != None: neighbors.append(c) 
+	c = make_neighbor(x+1, y+1)
+	if c != None: neighbors.append(c) 
+	
+	# neighbors above and below
+	c = make_neighbor(x, y+1)
+	if c != None: neighbors.append(c) 
+	c = make_neighbor(x, y-1)
+	if c != None: neighbors.append(c) 
+
+	# neighbors to the left
+	c = make_neighbor(x-1, y-1)
+	if c != None: neighbors.append(c) 
+	c = make_neighbor(x-1, y)
+	if c != None: neighbors.append(c) 
+	c = make_neighbor(x-1, y+1)
+	if c != None: neighbors.append(c) 	
+	return neighbors
+
+"""
+returns a tuple representing a coordinate that is not in the out of bounds cell
+and has indices that are not out of bounds
+:param: x an integer representing an x coordinate
+:param: y an integer representing a  y coordinate
+:return: a tuple, or None if the resulting tuple is invalid 
+"""
+def make_neighbor(x, y):
+	# validates out of bound indices 
+	if (x < 0 or x >= MAX_X() or y < 0 or y >= MAX_Y()):
+		return None
+	ter = Terrain.GetTerrainVal(pix[x,y])
+	# filters out of bound neighbors
+	if ter == Terrain.OutOfBounds():
+		return None
+	# must be a valid neighbor at this point
+	return (x,y)
+
+"""
+Updates the global pixel array to compensate for the fall season
+In the fall, easy movement forest and adjacent cells become harder to traverse
+This simulates the fact that in the fall leaves fall obscuring paths
+:return: None
+"""
+def do_fall():
+	print("do fall was called")
+	newColor = (128, 128, 128, 255)
+	oldColor = (255,255,255,255)
+	oob = (205,0,101,255) 
+	print(Terrain.GetTerrainVal((255,255,255,255)))
+	s = time.time()
+	for x in range(MAX_X()):
+		for y in range(MAX_Y()):
+			if (pix[x,y] == oldColor):
+				for tup in pixel_neighbors((x,y)):
+					i, j = tup
+					t_val = Terrain.GetTerrainVal(pix[i,j])
+					if pix[i,j] != pix[x,y] and t_val != Terrain.Water() and t_val != Terrain.ImpassibleVeg() and t_val	!= Terrain.RoughMeadow() :
+						pix[i,j] = newColor
+				pix[x,y] = newColor
+	e = time.time()
+	print(e - s)
+	
+def do_winter():
+	pass
+	
+def do_spring():
+	pass
 
 def main():
 	global pix
@@ -271,6 +369,11 @@ def main():
 	pix = img.load()
 	with open('elevations.txt') as f:
 		elevations = [ line.split() for line in f ]
+	img.show()	
+	do_fall()
+	img.show()
+	#return
+	
 	print("done")
 	print(len(elevations))
 	points = []

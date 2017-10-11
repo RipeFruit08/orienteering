@@ -7,12 +7,18 @@ def ImpassibleVeg():
 def Water():
 	return 0.2
 	
+def Ice():  # light blue (113, 237, 255, 255)
+	return 0.3
+	
 def RoughMeadow():
 	return 0.3
 	
+def HardMovementForest(): # some gray? (128, 128, 128, 255)
+	return 0.35
+
 def WalkForest():
 	return 0.4
-	
+		
 def EasyMovementForest():
 	return 0.5
 	
@@ -30,20 +36,23 @@ def PavedRoad():
 	
 def GetTerrainVal(color):
 	switcher = {
-		(248,148,18,255): OpenLand(),
-		(255,192,0,255): RoughMeadow(),
-		(255,255,255,255): EasyMovementForest(),
-		(2,208,60,255): SlowRunForest(),
-		(2,136,40,255): WalkForest(),
-		(5,73,24,255): ImpassibleVeg(),
-		(0,0,255,255): Water(),
-		(71,51,3,255): PavedRoad(),
-		(0,0,0,0): Footpath(),             # picture sometimes has this for black
-		(0,0,0,255): Footpath(),           # and sometimes this for black 
-		(205,0,101,255): OutOfBounds()
+		(248,148,18,255): OpenLand,
+		(255,192,0,255): RoughMeadow,
+		(255,255,255,255): EasyMovementForest,
+		(2,208,60,255): SlowRunForest,
+		(2,136,40,255): WalkForest,
+		(5,73,24,255): ImpassibleVeg,
+		(0,0,255,255): Water,
+		(71,51,3,255): PavedRoad,
+		(0,0,0,0): Footpath,             # picture sometimes has this for black
+		(0,0,0,255): Footpath,           # and sometimes this for black 
+		(205,0,101,255): OutOfBounds,
+		(128, 128, 128, 255): HardMovementForest,   # for fall
+		(113, 237, 255, 255): Ice                   # for winter 
+		
 	}
 	
-	return switcher.get(color)
+	return switcher.get(color)()
 	
 if __name__ == "__main__":
 	print("test")

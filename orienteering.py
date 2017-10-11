@@ -122,21 +122,147 @@ def A_star(init):
 				speed = 1
 				if (float(s.elevation) > float(state.elevation)):
 					speed = float(s.elevation) / float(state.elevation) # slower uphill 
-				# movement in the x direction
-				if (s.x == state.x):
-					costs[s] = costs[state] + (1/(s.terrain * speed))*Pixel.Longitude()
 				# movement in the y direction
-				elif (s.y == state.y):
+				if (s.x == state.x):
 					costs[s] = costs[state] + (1/(s.terrain * speed))*Pixel.Latitude()
+				# movement in the x direction
+				elif (s.y == state.y):
+					costs[s] = costs[state] + (1/(s.terrain * speed))*Pixel.Longitude()
 				# otherwise, diagonal movement
 				else:
 					costs[s] = costs[state] + (1/(s.terrain * speed))*Pixel.Diag()
 				heapq.heappush(pq, (costs[s] + s.priority, s))
-				parents[s] = state
-	#for state in path:
-		#print(state)
-		#pix[state.x,state.y] = (255,0,0,255)		
+				parents[s] = state		
 	
+
+"""
+Takes a list of State objects, lst, and produces 'human readable' output to get 
+from the first point to the last point
+:param: lst, a list of State objects
+:return: None, this function prints the human readable output
+"""
+def hr_output(lst, nth):
+	prev = lst[0]
+	dir = 0 # direction
+	cnt = 0 # number of times to move in that direction
+	for i in range(len(lst)-1):
+		next = lst[i+1]
+		# if x and y are changing -> moving diagonally
+		if (prev.x != next.x and prev.y != next.y):
+			# moving northwest
+			if (next.x < prev.x and next.y > prev.y):
+				tmp = 1
+				if dir == tmp:
+					cnt += 1
+				else:
+					hr_print(dir, cnt)
+					cnt = 1
+					dir = tmp
+			# moving northeast 
+			elif (next.x > prev.x and next.y > prev.y):
+				tmp = 3
+				if dir == tmp:
+					cnt += 1
+				else:
+					# print out
+					hr_print(dir, cnt)
+					cnt = 1
+					dir = tmp
+			# moving southwest
+			elif (next.x < prev.x and next.y < prev.y):
+				tmp = 6
+				if dir == tmp:
+					cnt += 1
+				else:
+					# print out
+					hr_print(dir, cnt)
+					cnt = 1
+					dir = tmp
+			# moving southeast				
+			elif (next.x > prev.x and next.y < prev.y):
+				tmp = 8
+				if dir == tmp:
+					cnt += 1
+				else:
+					# print out
+					hr_print(dir, cnt)
+					cnt = 1
+					dir = tmp
+
+		# x stays the same -> moving latitudinally (up/down)
+		elif (prev.x == next.x):
+			# moving north
+			if (next.y > prev.y):
+				tmp = 2
+				if dir == tmp:
+					cnt += 1
+				else:
+					hr_print(dir,cnt)
+					cnt = 1
+					dir = tmp
+			# moving south
+			elif (next.y < prev.y):
+				tmp = 7
+				if dir == tmp:
+					cnt += 1
+				else:
+					hr_print(dir,cnt)
+					cnt = 1
+					dir = tmp
+		# y stays the same -> moving longitudinally (left/right)
+		elif (prev.y == next.y):
+			# moving east 
+			if (next.x > prev.x):
+				tmp = 5
+				if dir == tmp:
+					cnt += 1
+				else:
+					hr_print(dir,cnt)
+					cnt = 1
+					dir = tmp
+			# moving west
+			elif (next.x > prev.x):
+				tmp = 4
+				if dir == tmp:
+					cnt += 1
+				else:
+					hr_print(dir,cnt)
+					cnt = 1
+					dir = tmp
+		prev = next 
+	print("Now at control " + str(nth))
+	print()
+			
+"""
+prints the 'direction' that you are moving based on dir, cnt
+:param: dir integer (1-8) representing the direction you are moving
+:param: cnt the number of units to move
+:return: nothing, this function prints
+"""
+def hr_print(dir, cnt):
+	# no direction was set
+	if dir == 0:
+		return
+	str_dir, multiplier = get_direction(dir)
+	print("Move " + str(round(multiplier * cnt,1)) + "m in " + str_dir)
+
+"""
+Returns the 'direction' that you are moving based on val
+:param: val integer (1-8) representing what direction you are moving
+"""
+def get_direction(val):
+	switcher = {
+		1: ("Northwest", Pixel.Diag()),
+		2: ("North", Pixel.Latitude()),
+		3: ("Northeast", Pixel.Diag()),
+		4: ("West", Pixel.Longitude()),
+		5: ("East", Pixel.Longitude()),
+		6: ("Southwest",Pixel.Diag()),
+		7: ("South", Pixel.Latitude()),
+		8: ("Southeast", Pixel.Diag())
+	}
+	
+	return switcher.get(val)
 
 def main():
 	global pix
@@ -164,7 +290,11 @@ def main():
 		init = State.State(elevations[start[0]][start[1]], Terrain.GetTerrainVal(pix[start[0],start[1]]), start[0], start[1], end[0], end[1])
 		paths.append(A_star(init))
 	etime = time.time()
+	counter = 1
 	for path in paths:
+		path.reverse()
+		hr_output(path, counter)
+		counter += 1
 		for s in path:
 			pix[s.x,s.y] = (255,0,0,255)		
 	print(etime - stime)

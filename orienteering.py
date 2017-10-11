@@ -64,18 +64,36 @@ def MakeSuccessor(x,y, gX, gY):
 	s = State.State(ele,ter,x,y,gX,gY)
 	return s
 
+"""
+Maximum x coordinate value
+"""
 def MAX_X():
 	return 395
-	
+
+"""
+Maximum y coordinate value
+"""
 def MAX_Y():
 	return 500
 
+"""
+Checks if a State object, ele, is contained in a list of states, lst
+:param: lst, the list of state objects
+:param: ele, the state object in question
+:return: True if ele is in lst, False otherwise
+"""
 def contains(lst, ele):
 	for s in lst:
 		if s.x == ele.x and s.y == ele.y:
 			return True
 	return False
 
+"""
+Runs A* search on an initial state, init
+:param: init, the initial state
+:return: a list of state objects leading from the goal to init
+NOTE that the path that gets returned is in reverse order 
+"""
 def A_star(init):
 	#a* search
 	pq = []
@@ -119,19 +137,7 @@ def A_star(init):
 		#print(state)
 		#pix[state.x,state.y] = (255,0,0,255)		
 	
-#230 327
-#276 279
-#303 240
-#306 286
-#290 310
-#304 331
-#306 341
-#253 372
-#246 355
-#288 338
-#282 321
-#243 327
-#230 327
+
 def main():
 	global pix
 	global elevations

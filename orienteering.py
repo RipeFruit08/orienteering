@@ -9,6 +9,13 @@ import Pixel
 pix = None
 elevations = []
 
+"""
+Generates successors for a given state.
+In this situation, a state represents a cell on the map and therefore will have at most
+8 different successors. This function calls MakeSuccessor which will handle invalid successors
+(i.e. Successors that have x,y coordinate out of bounds or states with terrain out bounds)
+:param: the state being used to generate successors
+"""
 def GetSuccessors(state):
 	succ = []
 	x = state.x
@@ -36,22 +43,17 @@ def GetSuccessors(state):
 	if s != None: succ.append(s) 
 	s = MakeSuccessor(x-1, y+1, gX, gY)
 	if s != None: succ.append(s) 
-	"""
-	succ.append(State.State(elevations[state.x+1][state.y-1], Terrain.GetTerrainVal(pix[state.x+1,state.y-1]), state.x+1, state.y-1, gX, gY))
-	succ.append(State.State(elevations[state.x+1][state.y], Terrain.GetTerrainVal(pix[state.x+1,state.y]), state.x+1, state.y, gX, gY))
-	succ.append(State.State(elevations[state.x+1][state.y+1], Terrain.GetTerrainVal(pix[state.x+1,state.y+1]), state.x+1, state.y+1, gX, gY))
-	
-	# above and below
-	succ.append(State.State(elevations[state.x][state.y-1], Terrain.GetTerrainVal(pix[state.x,state.y-1]), state.x, state.y-1, gX, gY))
-	succ.append(State.State(elevations[state.x][state.y+1], Terrain.GetTerrainVal(pix[state.x,state.y+1]), state.x, state.y+1, gX, gY))
-	
-	# successors to the left
-	succ.append(State.State(elevations[state.x-1][state.y-1], Terrain.GetTerrainVal(pix[state.x-1,state.y-1]), state.x-1, state.y-1, gX, gY))
-	succ.append(State.State(elevations[state.x-1][state.y], Terrain.GetTerrainVal(pix[state.x+1,state.y]), state.x+1, state.y, gX, gY))
-	succ.append(State.State(elevations[state.x-1][state.y+1], Terrain.GetTerrainVal(pix[state.x-1,state.y+1]), state.x-1, state.y+1, gX, gY))
-	"""
 	return succ
 
+"""
+Generates a successor based on x, y, gX, and gY
+:param: x  the x coordinate of successor
+:param: y  the y coorinaate of successor
+:param: gX the x coordinate of the goal
+:param: gY the y coordinate of the goal
+:return: None if the x or y coordinates are invalid or if the terrain at that successor is out of bounds
+         otherwise, State object representing the successor is return
+"""
 def MakeSuccessor(x,y, gX, gY):
 	if (x < 0 or x >= MAX_X() or y < 0 or y >= MAX_Y()):
 		return None

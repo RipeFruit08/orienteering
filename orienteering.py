@@ -53,6 +53,8 @@ def GetSuccessors(state):
 	return succ
 
 def MakeSuccessor(x,y, gX, gY):
+	if (x < 0 or x >= MAX_X() or y < 0 or y >= MAX_Y()):
+		return None
 	ele = elevations[x][y]
 	ter = Terrain.GetTerrainVal(pix[x,y])
 	if ter == Terrain.OutOfBounds():

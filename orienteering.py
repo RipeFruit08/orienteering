@@ -454,38 +454,46 @@ def main():
 	#do_fall()
 	#do_winter()
 	#do_spring()
-	img.show()
+	#img.show()
 	#return
 	
 	print("done")
 	print(len(elevations))
 	points = []
-	if (len(sys.argv) > 1):
+	if (len(sys.argv) > 2):
 		print("argument was passed!")
 		with open(sys.argv[1]) as f:
 			points = [tuple([int(i) for i in line.split()]) for line in f]
+		season = int(sys.argv[2])
+		change_season(season)
+		paths = []
+		stime = time.time()
+		for i in range(len(points)-1):
+			start = points[i]
+			end = points[i+1]
+			init = State.State(elevations[start[0]][start[1]], Terrain.GetTerrainVal(pix[start[0],start[1]]), start[0], start[1], end[0], end[1])
+			paths.append(A_star(init))
+		etime = time.time()
+		counter = 1
+		for path in paths:
+			path.reverse()
+			hr_output(path, counter)
+			counter += 1
+			for s in path:
+				pix[s.x,s.y] = (255,0,0,255)		
+		print(etime - stime)
+		img.show()
+		img.close()
 		#print(points)
 	# no file parameter passed, defaults to using points for brown path
 	else:
+		print("Usage: python3 orienteering.py file [season mode bit]")
+		print("\tSEASON MODE BITS")
+		print("\t0 -> summmer")
+		print("\t1 -> fall")
+		print("\t2 -> winter")
+		print("\t3 -> spring")
 		points = [(230, 327),(276, 279),(303, 240),(306, 286),(290, 310),(304, 331),(306, 341),(253, 372),(246, 355),(288, 338),(282, 321),(243, 327),(230, 327)]
-	paths = []
-	stime = time.time()
-	for i in range(len(points)-1):
-		start = points[i]
-		end = points[i+1]
-		init = State.State(elevations[start[0]][start[1]], Terrain.GetTerrainVal(pix[start[0],start[1]]), start[0], start[1], end[0], end[1])
-		paths.append(A_star(init))
-	etime = time.time()
-	counter = 1
-	for path in paths:
-		path.reverse()
-		hr_output(path, counter)
-		counter += 1
-		for s in path:
-			pix[s.x,s.y] = (255,0,0,255)		
-	print(etime - stime)
-	img.show()
-	img.close()
 	
 if __name__ == "__main__":
 	main()

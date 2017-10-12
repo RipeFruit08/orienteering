@@ -350,15 +350,51 @@ def do_fall():
 				for tup in pixel_neighbors((x,y)):
 					i, j = tup
 					t_val = Terrain.GetTerrainVal(pix[i,j])
-					if pix[i,j] != pix[x,y] and t_val != Terrain.Water() and t_val != Terrain.ImpassibleVeg() and t_val	!= Terrain.RoughMeadow() :
+					if pix[i,j] != pix[x,y] and t_val != Terrain.Water() and t_val != Terrain.ImpassibleVeg() and t_val	!= Terrain.RoughMeadow():
 						pix[i,j] = newColor
 				pix[x,y] = newColor
 	e = time.time()
 	print(e - s)
 	
+"""
+Updates the global pixel array to compensate for the winter season
+In the winter, all water that is within 7 pixels of land becomes icy
+In this implementation icy cells are treated to be about on par with
+rough meadows in terms of difficulty. All qualifying cells turn light blue
+"""
 def do_winter():
-	pass
+	print("do winter was called")
+	newColor = (113, 237, 255, 255)
+	oldColor = (0,0,255,255)
+	oob = (205,0,101,255)
+	s = time.time() 
+	for x in range(MAX_X()):
+		for y in range(MAX_Y()):
+			if (pix[x,y] == oldColor):  # found water
+				ice_flag = False
+				for tup in pixel_neighbors((x,y)):
+					i,j = tup
+					if (pix[i,j] != oldColor and pix[i,j] != newColor): # if any neighbor is land
+						ice_flag = True
+						break
+				if (ice_flag): # make ice cells
+					# DLT
+					winter_DLT(x,y)
+					pix[x,y] = newColor
+	e = time.time()
+	print(e-s)
 	
+def winter_DLT(x, y, d = 7):
+	t_val = Terrain.GetTerrainVal(pix[x,y])
+	if (t_val != Terrain.Water()):
+		return
+	if (d == 0):
+		return
+	pix[x,y] = (113, 237, 255, 255)
+	for tup in pixel_neighbors((x,y)):
+		i,j = tup
+		winter_DLT(i,j, d-1)
+		
 def do_spring():
 	pass
 
@@ -370,7 +406,8 @@ def main():
 	with open('elevations.txt') as f:
 		elevations = [ line.split() for line in f ]
 	img.show()	
-	do_fall()
+	#do_fall()
+	do_winter()
 	img.show()
 	#return
 	

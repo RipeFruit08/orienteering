@@ -340,8 +340,7 @@ This simulates the fact that in the fall leaves fall obscuring paths
 def do_fall():
 	print("do fall was called")
 	newColor = (128, 128, 128, 255)
-	oldColor = (255,255,255,255)
-	oob = (205,0,101,255) 
+	oldColor = (255,255,255,255) 
 	print(Terrain.GetTerrainVal((255,255,255,255)))
 	s = time.time()
 	for x in range(MAX_X()):
@@ -366,7 +365,6 @@ def do_winter():
 	print("do winter was called")
 	newColor = (113, 237, 255, 255)
 	oldColor = (0,0,255,255)
-	oob = (205,0,101,255)
 	s = time.time() 
 	for x in range(MAX_X()):
 		for y in range(MAX_Y()):
@@ -383,7 +381,15 @@ def do_winter():
 					pix[x,y] = newColor
 	e = time.time()
 	print(e-s)
-	
+
+"""
+runs a Depth Limited Traversal from pixel at x,y coloring each
+pixel visited light blue, stopping if a non water is seen or
+if the depth is reached
+:param: x the x coordinate of the originating cell
+:param: y the y coordinate of the originating cell
+:param: d the depth limited
+"""	
 def winter_DLT(x, y, d = 7):
 	t_val = Terrain.GetTerrainVal(pix[x,y])
 	if (t_val != Terrain.Water()):
@@ -396,8 +402,47 @@ def winter_DLT(x, y, d = 7):
 		winter_DLT(i,j, d-1)
 		
 def do_spring():
-	pass
+	print("spring was called")
+	newColor = (113, 237, 255, 255)
+	oldColor = (0,0,255,255)
+	s = time.time() 
+	for x in range(MAX_X()):
+		for y in range(MAX_Y()):
+			if (pix[x,y] == oldColor):  # found water
+				underwater = False
+				for tup in pixel_neighbors((x,y)):
+					i,j = tup
+					if (pix[i,j] != oldColor and pix[i,j] != newColor): # if any neighbor is land
+						underwater = True
+						break
+				if (underwater): # make ice cells
+					# DLT
+					spring_DLT(x,y,float(elevations[y][x]))
+					#pix[x,y] = newColor
+	# bit of a hack, iterate through pixels again and change all "ice" to water to more
+	# appropriately show that it is underwater
+	for x in range(MAX_X()):
+		for y in range(MAX_Y()):
+			if (pix[x,y] == newColor):
+				pix[x,y] = oldColor
+					
+	e = time.time()
 
+def spring_DLT(x, y, base, d = 15):
+	t_val = Terrain.GetTerrainVal(pix[x,y])
+	e_val = float(elevations[y][x])
+	diff = e_val - base	
+	if (diff > 1):
+		return
+	if (d == 0):
+		return
+	pix[x,y] = (113, 237, 255, 255)
+	for tup in pixel_neighbors((x,y)):
+		i,j = tup
+		t_val = Terrain.GetTerrainVal(pix[i,j])
+		if (t_val != Terrain.Water() and t_val != Terrain.Ice()):
+			spring_DLT(i,j, base, d-1)
+			
 def main():
 	global pix
 	global elevations
@@ -407,7 +452,8 @@ def main():
 		elevations = [ line.split() for line in f ]
 	img.show()	
 	#do_fall()
-	do_winter()
+	#do_winter()
+	#do_spring()
 	img.show()
 	#return
 	
